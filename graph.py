@@ -4,6 +4,7 @@ import numpy as np
 import sys
 import socket
 import asyncio
+import time
 
 
 class plotWindow:
@@ -35,9 +36,14 @@ class plotWindow:
         self.data = np.zeros(100)
 
         # データを更新する関数を呼び出す時間を設定
-        self.timer = QtCore.QTimer()
-        self.timer.timeout.connect(self.update)
-        self.timer.start(100)
+        async with True:
+            print('showGraph==ing')
+            time.sleep(1)
+            self.update()
+            # self.timer = QtCore.QTimer()
+            # self.timer.timeout.connect(self.update)
+            # self.timer.start(100)
+        
         print('showGraph==fin')
 
         if (sys.flags.interactive!=1) or not hasattr(QtCore, 'PYQT_VERSION'):
@@ -50,7 +56,7 @@ class plotWindow:
 
     async def udpServer(self):
         print('udpServer==start')
-        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+        async with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
             s.bind(('192.168.10.200', 6666))
             while True:
                 data, addr = s.recvfrom(1024)
@@ -67,6 +73,8 @@ class plotWindow:
 
 if __name__=="__main__":
     plotwin=plotWindow()
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(plotwin.showGraph())
 
     plotwin.showGraph()
     plotwin.udpServer()
